@@ -6,9 +6,9 @@ from urllib.parse import urljoin
 def get_page_title_and_divs(session, url):
     try:
         headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/605.1.15 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/605.1.15'
                 }
-        response = session.get(url,headers=headers)
+        response = session.get(url,headers=headers,allow_redirects=False)
         response.raise_for_status()  # Raises an HTTPError for bad responses (4XX, 5XX)
 
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -48,7 +48,7 @@ def main():
     url = f"{base_url}?&po={page_num - 1}"
 
     with requests.Session() as session:
-        session.max_redirects = 5  # Set the maximum number of redirects
+        session.max_redirects = 10  # Set the maximum number of redirects
         page_title, titles_and_urls = get_page_title_and_divs(session, url)
         display_content(page_title, titles_and_urls)
         navigation_buttons(page_num)
@@ -89,7 +89,7 @@ def navigation_buttons(page_num):
     with col2:
         if st.button('Next'):
             st.session_state.page_num += 1
-            st.experimental_rerun()
+            st.rerun()
 
 if __name__ == "__main__":
     if 'page_num' not in st.session_state:
