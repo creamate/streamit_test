@@ -3,19 +3,28 @@ import requests
 from bs4 import BeautifulSoup, NavigableString
 from urllib.parse import urljoin
 
+def create_proxy_session():
+    session = requests.Session()
+    proxies = {
+        'http': st.secrets["proxy"]["http_proxy"],
+        'https': st.secrets["proxy"]["https_proxy"]
+    }
+    session.proxies.update(proxies)
+    return session
+
 def get_page_title_and_divs(session, url):
     try:
         headers = {
-    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/605.1.15 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/605.1.15'
-                }
-        response = session.get(url,headers=headers,allow_redirects=False)
-        response.raise_for_status()  # Raises an HTTPError for bad responses (4XX, 5XX)
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/605.1.15 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/605.1.15'
+        }
+        response = session.get(url, headers=headers)
+        response.raise_for_status()
 
         soup = BeautifulSoup(response.text, 'html.parser')
         page_title = soup.title.string if soup.title else 'No Title Found'
         titles_and_urls = extract_titles_and_urls(soup)
         
-        return page_title, titles_and_urls[2:]  # Skip the first two titles for some reason
+        return page_title, titles_and_urls[2:]  # Skipping first two titles for some reason
     except (requests.exceptions.HTTPError, requests.exceptions.TooManyRedirects, requests.exceptions.RequestException) as e:
         st.error(f"Error retrieving data: {e}")
         return "Error: Could not retrieve the website", []
@@ -31,7 +40,6 @@ def extract_titles_and_urls(soup):
             href = a_tag.get('href')
             full_url = urljoin(base_url, href)
             titles_and_urls.append((clean_title, full_url))
-            
     return titles_and_urls
 
 def clean_title_element(a_tag):
@@ -40,6 +48,8 @@ def clean_title_element(a_tag):
     cleaned_title = ''.join(str(item) if not isinstance(item, NavigableString) else item for item in a_tag.contents).strip()
     return cleaned_title
 
+# Remaining functions (inject_custom_css, display_content, navigation_buttons, main) go here without modification
+
 def main():
     st.title('Clien Tracker')
     inject_custom_css()
@@ -47,11 +57,11 @@ def main():
     page_num = st.session_state.get('page_num', 1)
     url = f"{base_url}?&po={page_num - 1}"
 
-    with requests.Session() as session:
-        session.max_redirects = 10  # Set the maximum number of redirects
-        page_title, titles_and_urls = get_page_title_and_divs(session, url)
-        display_content(page_title, titles_and_urls)
-        navigation_buttons(page_num)
+    session = create_proxy_session()  # Use the proxy session here
+    session.max_redirects = 10
+    page_title, titles_and_urls = get_page_title_and_divs(session, url)
+    display_content(page_title, titles_and_urls)
+    navigation_buttons(page_num)
 
 def inject_custom_css():
     st.markdown("""
@@ -89,7 +99,7 @@ def navigation_buttons(page_num):
     with col2:
         if st.button('Next'):
             st.session_state.page_num += 1
-            st.rerun()
+            st.experimental_rerun()
 
 if __name__ == "__main__":
     if 'page_num' not in st.session_state:
