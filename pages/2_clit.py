@@ -5,7 +5,10 @@ from urllib.parse import urljoin
 
 def get_page_title_and_divs(session, url):
     try:
-        response = session.get(url)
+        headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+                }
+        response = session.get(url,headers=headers)
         response.raise_for_status()  # Raises an HTTPError for bad responses (4XX, 5XX)
 
         soup = BeautifulSoup(response.text, 'html.parser')
