@@ -85,11 +85,11 @@ def navigation_buttons(page_num):
     with col1:
         if page_num > 1 and st.button('Previous'):
             st.session_state.page_num -= 1
-            st.rerun()
+            st.experimental_rerun()
     with col2:
         if st.button('Next'):
             st.session_state.page_num += 1
-            st.rerun()
+            st.experimental_rerun()
 
 if __name__ == "__main__":
     if 'page_num' not in st.session_state:
