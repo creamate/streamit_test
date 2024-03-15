@@ -17,6 +17,7 @@ def get_weather_data(api_key, city):
         'appid': api_key,
         'units': 'metric'
     }
+    
     response = requests.get(base_url, params=params)
     response.raise_for_status()  # This will raise an exception for non-200 responses
     return response.json()
