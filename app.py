@@ -9,7 +9,7 @@ st.set_page_config(
 )
 
 # Cache the API requests to avoid unnecessary calls
-@st.cache_resource(ttl=600)
+@st.cache(ttl=600)
 def get_weather_data(api_key, city):
     base_url = "https://api.openweathermap.org/data/2.5/weather"
     params = {
