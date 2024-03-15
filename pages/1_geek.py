@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import streamlit as st
+import json
 
 def get_page_title_and_divs(url):
     try:
